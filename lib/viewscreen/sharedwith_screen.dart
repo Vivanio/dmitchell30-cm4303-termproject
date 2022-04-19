@@ -1,5 +1,8 @@
+//import 'dart:js';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:termproject/viewscreen/view/view_util.dart';
 import 'package:termproject/viewscreen/view/webimage.dart';
 
 import '../model/constant.dart';
@@ -10,12 +13,15 @@ class SharedWithScreen extends StatelessWidget {
 
   final List<PhotoMemo> photoMemoList;
   final User user;
+  late _Controller con = _Controller(this);
+  var formKey = GlobalKey<FormState>();
 
-  const SharedWithScreen({
+  SharedWithScreen({
     required this.user,
     required this.photoMemoList,
     Key? key,
   }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -25,7 +31,7 @@ class SharedWithScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: photoMemoList.isEmpty
-            ? Text('No PhotoMemo shared')
+            ? const Text('No PhotoMemo shared')
             : Column(
                 children: [
                   for (var photoMemo in photoMemoList)
@@ -54,9 +60,24 @@ class SharedWithScreen extends StatelessWidget {
                             Text('Created By: ${photoMemo.createBy}'),
                             Text('Created at: ${photoMemo.timestamp}'),
                             Text(' Shared With: ${photoMemo.sharedWith}'),
-                            Constant.devMode
+                            /*Constant.devMode
                                 ? Text('Image Labels: ${photoMemo.imageLabels}')
-                                : const SizedBox(height: 1.0),
+                                : const SizedBox(height: 1.0),*/
+                            TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Add comment?',
+                                  fillColor: Color.fromARGB(255, 206, 201, 201),
+                                  filled: true,
+                                ),
+                                autocorrect: true,
+                                onSaved: con.saveSearchKey),
+                            ElevatedButton(
+                              onPressed: con.updateComment,
+                              child: Text(
+                                'Upload Comment?',
+                                style: Theme.of(context).textTheme.button,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -65,5 +86,32 @@ class SharedWithScreen extends StatelessWidget {
               ),
       ),
     );
+  }
+}
+
+class _Controller {
+  late SharedWithScreen state;
+  late List<PhotoMemo> photoMemoList;
+  late String? userComment;
+  late PhotoMemo tempMemo;
+
+  _Controller(this.state) {
+    photoMemoList = state.photoMemoList;
+    //tempMemo = PhotoMemo.clone(state.widget.photoMemo);
+  }
+
+  void saveSearchKey(String? value) {
+    userComment = value;
+  }
+
+  void updateComment() async {
+    FormState? currentState = state.formKey.currentState;
+    if (currentState == null || !currentState.validate()) {
+      return;
+    }
+    try {} catch (e) {
+      if (Constant.devMode) print('===== failed to update: $e');
+      //showSnackBar(context: state.context, message: 'Failed to get update');
+    }
   }
 }

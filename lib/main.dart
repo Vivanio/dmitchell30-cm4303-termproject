@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:termproject/viewscreen/addphotomemo_screen.dart';
 import 'package:termproject/viewscreen/detailedview_screen.dart';
 import 'package:termproject/viewscreen/error_screen.dart';
+import 'package:termproject/viewscreen/friend_screen.dart';
 import 'package:termproject/viewscreen/sharedwith_screen.dart';
 import 'package:termproject/viewscreen/signp_screen.dart';
 import 'package:termproject/viewscreen/start_screen.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
           }
         },
         SignUpScreen.routeName: (context) => const SignUpScreen(),
+        FriendScreen.routeName: (context) => const FriendScreen(),
         SharedWithScreen.routeName: (context) {
           print("OK");
           Object? args = ModalRoute.of(context)?.settings.arguments;

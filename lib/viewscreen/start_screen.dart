@@ -43,7 +43,7 @@ class _StartState extends State<StartScreen> {
           child: Column(
             children: [
               Text(
-                'PhotoMemo',
+                'Library',
                 style: Theme.of(context).textTheme.headline3,
               ),
               TextFormField(

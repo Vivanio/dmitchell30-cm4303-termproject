@@ -17,11 +17,11 @@ class FirestoreController {
   }) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection(Constant.photoMemoCollection)
-        .where(DockeyPhotoMemo.createBy.name, isEqualTo: '1@test.com')
+        .where(DockeyPhotoMemo.createBy.name, isEqualTo: email)
         .orderBy(DockeyPhotoMemo.timestamp.name, descending: true)
         .get();
-    print('Pop You');
-    print(querySnapshot);
+    //print('Pop You');
+    print(DockeyPhotoMemo.createBy);
 
     var result = <PhotoMemo>[];
     //print('BOOM');
@@ -57,6 +57,30 @@ class FirestoreController {
         .collection(Constant.photoMemoCollection)
         .where(DockeyPhotoMemo.createBy.name, isEqualTo: email)
         .where(DockeyPhotoMemo.imageLabel.name, arrayContainsAny: searchLabel)
+        .orderBy(DockeyPhotoMemo.timestamp.name, descending: true)
+        .get();
+
+    var result = <PhotoMemo>[];
+    for (var doc in querySnapshot.docs) {
+      var p = PhotoMemo.fromFirestoreDoc(
+        doc: doc.data() as Map<String, dynamic>,
+        docId: doc.id,
+      );
+      if (p != null) {
+        result.add(p);
+      }
+    }
+    return result;
+  }
+
+  static Future<List<PhotoMemo>> searchImagesTitle({
+    required String email,
+    required List<String> searchName,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.photoMemoCollection)
+        .where(DockeyPhotoMemo.createBy.name, isEqualTo: email)
+        .where(DockeyPhotoMemo.title.name, arrayContainsAny: searchName)
         .orderBy(DockeyPhotoMemo.timestamp.name, descending: true)
         .get();
 

@@ -100,6 +100,11 @@ class _UserHomeState extends State<UserHomeScreen> {
                 title: const Text('Shared With'),
                 onTap: con.sharedWith,
               ),
+              ListTile(
+                leading: const Icon(Icons.attribution),
+                title: const Text('Shared With'),
+                onTap: con.friendList,
+              ),
             ],
           ),
         ),
@@ -194,7 +199,7 @@ class _Controller {
 
   Future<void> sharedWith() async {
     try {
-      print("fff");
+      //print("fff");
       List<PhotoMemo> photoMemoList =
           await FirestoreController.getPhotoMemoListSharedWithMe(
               email: state.email);
@@ -204,10 +209,12 @@ class _Controller {
         arguments: {
           ArgKey.photoMemoList: photoMemoList,
           ArgKey.user: state.widget.user,
+          //ArgKey.onePhotoMemo: photoMemoList[index],
         },
       );
-      print("dddd");
-      Navigator.of(state.context).pop();
+      //print("dddd");
+      state.render(() {});
+      //Navigator.of(state.context).pop();
     } catch (e) {
       if (Constant.devMode) print('get SharedWih list fail: $e');
       showSnackBar(
@@ -218,18 +225,57 @@ class _Controller {
     }
   }
 
+  Future<void> friendList() async {
+    try {
+      //print("fff");
+      /*List<PhotoMemo> photoMemoList =
+          await FirestoreController.getPhotoMemoListSharedWithMe(
+              email: state.email);*/
+      Navigator.pushNamed(
+        state.context,
+        SharedWithScreen.routeName,
+        arguments: {
+          //ArgKey.photoMemoList: photoMemoList,
+          ArgKey.user: state.widget.user,
+          //ArgKey.onePhotoMemo: photoMemoList[index],
+        },
+      );
+      //print("dddd");
+      state.render(() {});
+      //Navigator.of(state.context).pop();
+    } catch (e) {
+      if (Constant.devMode) print('get FriendList list fail: $e');
+      showSnackBar(
+          context: state.context,
+          seconds: 20,
+          message: 'Get friends with list fail $e');
+      //break;
+    }
+  }
+
   void search() async {
     FormState? currentState = state.formKey.currentState;
     if (currentState == null) return;
     currentState.save();
 
     List<String> keys = [];
+    /*if (searchKeyString != null) {
+      var tokens = searchKeyString!.split(RegExp('(,| )+')).toList();
+      for (var t in tokens) {
+        if (t.trim().isNotEmpty) {
+          keys.add(t.trim().toLowerCase());
+        }
+      }
+    }*/
     if (searchKeyString != null) {
       var tokens = searchKeyString!.split(RegExp('(,| )+')).toList();
       for (var t in tokens) {
-        if (t.trim().isNotEmpty) keys.add(t.trim().toLowerCase());
+        if (t.trim().isNotEmpty) {
+          keys.add(t.trim().toLowerCase());
+        }
       }
     }
+
     startCircularProgress(state.context);
     try {
       late List<PhotoMemo> results;

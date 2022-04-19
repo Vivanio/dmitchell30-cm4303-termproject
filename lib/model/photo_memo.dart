@@ -83,6 +83,7 @@ class PhotoMemo {
       DockeyPhotoMemo.photoURL.name: photoURL,
       DockeyPhotoMemo.sharedWith.name: sharedWith,
       DockeyPhotoMemo.imageLabel.name: imageLabels,
+      DockeyPhotoMemo.timestamp.name: timestamp,
       DockeyPhotoMemo.comment.name: comment
     };
   }
