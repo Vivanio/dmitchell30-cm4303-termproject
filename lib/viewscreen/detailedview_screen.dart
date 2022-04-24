@@ -11,6 +11,7 @@ import 'package:termproject/model/constant.dart';
 import 'package:termproject/viewscreen/view/view_util.dart';
 import 'package:termproject/viewscreen/view/webimage.dart';
 
+import '../model/friend.dart';
 import '../model/photo_memo.dart';
 import 'view/webimage.dart';
 
@@ -108,7 +109,7 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 style: Theme.of(context).textTheme.headline6,
                 decoration: const InputDecoration(hintText: 'Enter Memo'),
                 initialValue: con.tempMemo.memo,
-                maxLines: 4,
+                maxLines: 3,
                 keyboardType: TextInputType.multiline,
                 validator: PhotoMemo.validateMemo,
                 onSaved: con.saveMemo,
@@ -118,8 +119,8 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 enableInteractiveSelection: false,
                 style: Theme.of(context).textTheme.headline6,
                 decoration: const InputDecoration(hintText: 'Comment Section'),
-                initialValue: con.tempMemo.comment.join(' '),
-                //maxLines: 2,
+                initialValue: con.tempMemo.comment.join('\n'),
+                maxLines: 15,
                 keyboardType: TextInputType.emailAddress,
                 validator: PhotoMemo.validateSharedWith,
                 onSaved: con.saveSharedWith,
@@ -129,17 +130,34 @@ class _DetailedViewState extends State<DetailedViewScreen> {
                 style: Theme.of(context).textTheme.headline6,
                 decoration: const InputDecoration(
                     hintText: 'Enter Shared With: email list'),
-                initialValue: con.tempMemo.sharedWith.join(' '),
+                initialValue: con.tempMemo.sharedWith.join('\n'),
                 maxLines: 2,
                 keyboardType: TextInputType.emailAddress,
                 validator: PhotoMemo.validateSharedWith,
                 onSaved: con.saveSharedWith,
               ),
-              Constant.devMode
-                  ? Text('Image Labels by ML \n${con.tempMemo.imageLabels}')
-                  : const SizedBox(
-                      height: 1.0,
-                    ),
+              // Constant.devMode
+              //     ? Text('Image Labels by ML \n${con.tempMemo.imageLabels}')
+              //     : const SizedBox(
+              //         height: 1.0,
+              //       ),
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'Add comment?',
+                  fillColor: Color.fromARGB(255, 206, 201, 201),
+                  filled: true,
+                ),
+                autocorrect: true,
+                validator: Friend.validateComment,
+                onSaved: con.saveComment,
+              ),
+              ElevatedButton(
+                onPressed: con.updateComment,
+                child: Text(
+                  'Upload Comment',
+                  style: Theme.of(context).textTheme.button,
+                ),
+              ),
             ],
           ),
         ),
@@ -151,6 +169,11 @@ class _DetailedViewState extends State<DetailedViewScreen> {
 class _Controller {
   _DetailedViewState state;
   late PhotoMemo tempMemo;
+  List<int> selected = [];
+  //late List<PhotoMemo> photoMemoList;
+  late String? userComment = '';
+  late String? userName = state.widget.user.email;
+  late String? tempString = '';
   File? photo;
   _Controller(this.state) {
     print(
@@ -231,7 +254,54 @@ class _Controller {
     }
   }
 
+  void saveComment(String? value) {
+    if (value != null) {
+      //print(value + '33333333333333');
+      userComment = value;
+    }
+  }
+
+  Future<void> updateComment() async {
+    tempString = '';
+    FormState? currentState = state.formKey.currentState;
+    //print('-------');
+    //print(userComment);
+    //startCircularProgress(state.context);
+    if (currentState == null) {
+      return;
+    }
+    currentState.save();
+    try {
+      Map<String, dynamic> update = {};
+      tempString = userComment! + ' - ' + userName!;
+      tempMemo.comment.add(tempString);
+      if (!listEquals(tempMemo.comment, state.widget.photoMemo.comment)) {
+        update[DockeyPhotoMemo.comment.name] = tempMemo.comment;
+      }
+
+      if (update.isNotEmpty) {
+        tempMemo.timestamp = DateTime.now();
+        print('-------');
+        //print(userComment);
+        update[DockeyPhotoMemo.timestamp.name] = tempMemo.timestamp;
+        await FirestoreController.updatePhotoMemo(
+            docId: tempMemo.docId!, update: update);
+
+        state.widget.photoMemo.copyFrom(tempMemo);
+      }
+
+      Navigator.of(state.context).pop();
+
+      //print('=============== docId: $docId');
+      //stopCircularProgress(state.context);
+    } catch (e) {
+      if (Constant.devMode) print('===== failed to update: $e');
+      //showSnackBar(context: state.context, message: 'Failed to get update');
+    }
+  }
+
   void saveMemo(String? value) {
+    //print('11111111111111111111111111111111111');
     if (value != null) {
       tempMemo.memo = value;
     }

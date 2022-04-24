@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:termproject/model/constant.dart';
+import 'package:termproject/model/friend.dart';
 import 'package:termproject/model/photo_memo.dart';
 
 class FirestoreController {
@@ -9,6 +10,15 @@ class FirestoreController {
     DocumentReference ref = await FirebaseFirestore.instance
         .collection(Constant.photoMemoCollection)
         .add(photoMemo.toFirestoreDoc());
+    return ref.id;
+  }
+
+  static Future<String> addFriend({
+    required Friend friend,
+  }) async {
+    DocumentReference ref = await FirebaseFirestore.instance
+        .collection(Constant.friendList)
+        .add(friend.toFirestoreDoc());
     return ref.id;
   }
 
@@ -39,12 +49,49 @@ class FirestoreController {
     return result;
   }
 
+  static Future<List<Friend>> getFriend({
+    required String email,
+  }) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(Constant.friendList)
+        .where(DockeyFriend.user.name, isEqualTo: email)
+        //.orderBy(DockeyPhotoMemo.timestamp.name, descending: true)
+        .get();
+    //print('Pop You');
+    print(DockeyFriend.user);
+
+    var result = <Friend>[];
+    //print('BOOM');
+    for (var doc in querySnapshot.docs) {
+      if (doc.data() != null) {
+        var document = doc.data() as Map<String, dynamic>;
+        var p = Friend.fromFirestoreDoc(doc: document, docId: doc.id);
+        if (p != null) {
+          result.add(p);
+          //print('BOOM');
+        }
+      }
+    }
+
+    return result;
+  }
+
   static Future<void> updatePhotoMemo({
     required String docId,
     required Map<String, dynamic> update,
   }) async {
     await FirebaseFirestore.instance
         .collection(Constant.photoMemoCollection)
+        .doc(docId)
+        .update(update);
+  }
+
+  static Future<void> updateFriend({
+    required String docId,
+    required Map<String, dynamic> update,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.friendList)
         .doc(docId)
         .update(update);
   }
@@ -102,6 +149,15 @@ class FirestoreController {
   }) async {
     await FirebaseFirestore.instance
         .collection(Constant.photoMemoCollection)
+        .doc(docId)
+        .delete();
+  }
+
+  static Future<void> deleteFriend({
+    required String docId,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection(Constant.friendList)
         .doc(docId)
         .delete();
   }

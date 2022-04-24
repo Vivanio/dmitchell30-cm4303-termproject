@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:termproject/controller/auth_controller.dart';
 import 'package:termproject/controller/firestore_controller.dart';
 import 'package:termproject/model/constant.dart';
+import 'package:termproject/model/friend.dart';
 import 'package:termproject/model/photo_memo.dart';
 import 'package:termproject/viewscreen/addphotomemo_screen.dart';
+import 'package:termproject/viewscreen/friend_screen.dart';
 import 'package:termproject/viewscreen/sharedwith_screen.dart';
 import 'package:termproject/viewscreen/view/view_util.dart';
 import 'package:termproject/viewscreen/view/webimage.dart';
@@ -102,7 +104,7 @@ class _UserHomeState extends State<UserHomeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.attribution),
-                title: const Text('Shared With'),
+                title: const Text('Friend List'),
                 onTap: con.friendList,
               ),
             ],
@@ -228,16 +230,15 @@ class _Controller {
   Future<void> friendList() async {
     try {
       //print("fff");
-      /*List<PhotoMemo> photoMemoList =
-          await FirestoreController.getPhotoMemoListSharedWithMe(
-              email: state.email);*/
+      List<Friend> friendList =
+          await FirestoreController.getFriend(email: state.email);
       Navigator.pushNamed(
         state.context,
-        SharedWithScreen.routeName,
+        FriendScreen.routeName,
         arguments: {
           //ArgKey.photoMemoList: photoMemoList,
           ArgKey.user: state.widget.user,
-          //ArgKey.onePhotoMemo: photoMemoList[index],
+          ArgKey.friend: friendList,
         },
       );
       //print("dddd");

@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:termproject/viewscreen/addfriend_screen.dart';
 import 'package:termproject/viewscreen/addphotomemo_screen.dart';
 import 'package:termproject/viewscreen/detailedview_screen.dart';
 import 'package:termproject/viewscreen/error_screen.dart';
@@ -56,6 +57,20 @@ class MyApp extends StatelessWidget {
             );
           }
         },
+        AddFriendScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return ErrorScreen('args is null for AddFriendScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ArgKey.user];
+            var friendlist = argument[ArgKey.friend];
+            return AddFriendScreen(
+              user: user,
+              friendList: friendlist,
+            );
+          }
+        },
         DetailedViewScreen.routeName: (context) {
           Object? args = ModalRoute.of(context)?.settings.arguments;
           if (args == null) {
@@ -71,7 +86,21 @@ class MyApp extends StatelessWidget {
           }
         },
         SignUpScreen.routeName: (context) => const SignUpScreen(),
-        FriendScreen.routeName: (context) => const FriendScreen(),
+        //FriendScreen.routeName: (context) => const StartScreen(),
+        FriendScreen.routeName: (context) {
+          Object? args = ModalRoute.of(context)?.settings.arguments;
+          if (args == null) {
+            return ErrorScreen('args is null for UserHomeScreen');
+          } else {
+            var argument = args as Map;
+            var user = argument[ArgKey.user];
+            var friendlist = argument[ArgKey.friend];
+            return FriendScreen(
+              user: user,
+              friendList: friendlist,
+            );
+          }
+        },
         SharedWithScreen.routeName: (context) {
           print("OK");
           Object? args = ModalRoute.of(context)?.settings.arguments;
